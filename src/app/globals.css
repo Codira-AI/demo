@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Tessera color tokens.
+ *
+ * Light is the default (most public feedback boards are read by
+ * end-users who expect a light surface). Dark variant flips via
+ * `prefers-color-scheme` or a `.dark` class for explicit toggle.
+ *
+ * Naming mirrors Codira IDE's palette so anyone moving between
+ * the two products feels at home. RGB triplets (no #) so Tailwind's
+ * `<alpha-value>` syntax works.
+ */
+:root {
+  --bg-0: 255 255 255;
+  --bg-1: 247 247 248;
+  --bg-2: 237 238 240;
+  --ink-0: 24 25 28;
+  --ink-1: 60 64 72;
+  --ink-2: 108 114 124;
+  --edge: 218 222 228;
+  --accent: 20 115 230;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-0: 22 22 25;
+    --bg-1: 30 31 34;
+    --bg-2: 41 43 47;
+    --ink-0: 240 241 244;
+    --ink-1: 196 199 207;
+    --ink-2: 144 149 159;
+    --edge: 58 61 68;
+    --accent: 102 167 255;
+  }
+}
+
+html, body {
+  background: rgb(var(--bg-0));
+  color: rgb(var(--ink-0));
+}
+
+/* Match Codira chrome's button reset — prevents weird letter-spacing
+ * leakage from parent containers and keeps button typography flat. */
+button {
+  letter-spacing: normal;
+  text-transform: none;
+}
