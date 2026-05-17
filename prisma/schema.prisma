@@ -1,0 +1,209 @@
+// CODIRA_DEMO: schema iteration
+//
+// This is the canonical Tessera data model. Codira's auto-Architect
+// (Phase 3) parses this file on workspace open and populates the
+// Architect Schema tab with all 9 entities and their relationships.
+//
+// Try it: with the demo running, open Codira's chat panel and run
+//   /plan we need a Notification entity. Users get notifications
+//   when a FeedbackPost on a Project they admin gets a new Vote
+//   or Comment. Include a read_at field.
+// The planner will reference these existing entities by name
+// because it read the Architect doc.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Tenant boundary ──────────────────────────────────────────────
+
+model Organization {
+  id                     String   @id @default(cuid())
+  clerk_org_id           String   @unique
+  name                   String
+  slug                   String   @unique
+  plan                   Plan     @default(free)
+  stripe_customer_id     String?  @unique
+  stripe_subscription_id String?  @unique
+  current_period_end     DateTime?
+  created_at             DateTime @default(now())
+
+  users        User[]
+  projects     Project[]
+  subscription Subscription?
+}
+
+model Subscription {
+  id                    String              @id @default(cuid())
+  organization_id       String              @unique
+  organization          Organization        @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  plan                  Plan
+  status                SubscriptionStatus
+  current_period_end    DateTime
+  cancel_at_period_end  Boolean             @default(false)
+  created_at            DateTime            @default(now())
+}
+
+// ─── Team members ─────────────────────────────────────────────────
+
+model User {
+  id              String   @id @default(cuid())
+  clerk_user_id   String   @unique
+  organization_id String
+  organization    Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  email           String
+  name            String?
+  role            UserRole @default(member)
+  created_at      DateTime @default(now())
+
+  assigned_tasks    Task[]    @relation("TaskAssignees")
+  authored_comments Comment[]
+
+  @@index([organization_id])
+}
+
+// ─── Work ─────────────────────────────────────────────────────────
+
+model Project {
+  id              String   @id @default(cuid())
+  organization_id String
+  organization    Organization @relation(fields: [organization_id], references: [id], onDelete: Cascade)
+  slug            String
+  name            String
+  description     String?
+  is_public       Boolean  @default(true)
+  created_at      DateTime @default(now())
+
+  tasks          Task[]
+  feedback_posts FeedbackPost[]
+
+  @@unique([organization_id, slug])
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  project_id  String
+  project     Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  status      TaskStatus @default(todo)
+  priority    Priority   @default(medium)
+  due_date    DateTime?
+  created_at  DateTime   @default(now())
+
+  assignees User[] @relation("TaskAssignees")
+
+  @@index([project_id, status])
+}
+
+// ─── Customer-facing feedback surface ────────────────────────────
+
+model Customer {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String?
+  created_at DateTime @default(now())
+
+  posts    FeedbackPost[]
+  votes    Vote[]
+  comments Comment[]
+}
+
+model FeedbackPost {
+  id          String     @id @default(cuid())
+  project_id  String
+  project     Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  customer_id String
+  customer    Customer   @relation(fields: [customer_id], references: [id])
+  title       String
+  body        String?
+  status      PostStatus @default(open)
+  created_at  DateTime   @default(now())
+
+  votes    Vote[]
+  comments Comment[]
+
+  @@index([project_id, status])
+  @@index([customer_id])
+}
+
+model Vote {
+  id          String   @id @default(cuid())
+  post_id     String
+  post        FeedbackPost @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  customer_id String
+  customer    Customer     @relation(fields: [customer_id], references: [id])
+  created_at  DateTime @default(now())
+
+  // One vote per customer per post — handled at the DB level so
+  // we never need to read-before-write on the hot voting path.
+  @@unique([post_id, customer_id])
+}
+
+model Comment {
+  id      String @id @default(cuid())
+  post_id String
+  post    FeedbackPost @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  body    String
+
+  // Polymorphic-ish authorship: a comment is from EITHER a team
+  // member (User) or an external customer (Customer). Exactly one
+  // of these FKs is set; the other is null. We model it as two
+  // optional FKs rather than a true polymorphic association because
+  // Prisma + Postgres handle it cleanly and the query patterns are
+  // simple (count by author_user_id IS NOT NULL etc.).
+  author_user_id     String?
+  author_user        User?     @relation(fields: [author_user_id], references: [id])
+  author_customer_id String?
+  author_customer    Customer? @relation(fields: [author_customer_id], references: [id])
+
+  created_at DateTime @default(now())
+
+  @@index([post_id])
+}
+
+// ─── Enums ────────────────────────────────────────────────────────
+
+enum Plan {
+  free
+  pro
+  team
+}
+
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+}
+
+enum UserRole {
+  admin
+  member
+}
+
+enum TaskStatus {
+  todo
+  in_progress
+  in_review
+  done
+}
+
+enum Priority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum PostStatus {
+  open
+  planned
+  in_progress
+  completed
+  declined
+}

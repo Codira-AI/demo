@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "stack": [
+    { "id": "auto_nextjs_t1", "tileId": "nextjs", "position": { "x": 80, "y": 80 } },
+    { "id": "auto_postgres_t2", "tileId": "postgres", "position": { "x": 80, "y": 240 } },
+    { "id": "auto_prisma_t3", "tileId": "prisma", "position": { "x": 320, "y": 240 } },
+    { "id": "auto_clerk_t4", "tileId": "clerk", "position": { "x": 80, "y": 400 } },
+    { "id": "auto_stripe_t5", "tileId": "stripe", "position": { "x": 320, "y": 400 } },
+    { "id": "auto_resend_t6", "tileId": "resend", "position": { "x": 80, "y": 560 } },
+    { "id": "auto_vercel_t7", "tileId": "vercel", "position": { "x": 80, "y": 720 } },
+    { "id": "auto_sentry_t8", "tileId": "sentry", "position": { "x": 320, "y": 720 } }
+  ],
+  "stackEdges": [],
+  "schema": [
+    {
+      "id": "ent_organization",
+      "name": "Organization",
+      "position": { "x": 80, "y": 80 },
+      "fields": [
+        { "id": "f_org_id", "name": "id", "type": "string", "nullable": false, "primary": true, "unique": true },
+        { "id": "f_org_clerk", "name": "clerk_org_id", "type": "string", "nullable": false, "primary": false, "unique": true },
+        { "id": "f_org_name", "name": "name", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_org_slug", "name": "slug", "type": "string", "nullable": false, "primary": false, "unique": true },
+        { "id": "f_org_plan", "name": "plan", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_org_created", "name": "created_at", "type": "datetime", "nullable": false, "primary": false, "unique": false }
+      ]
+    },
+    {
+      "id": "ent_subscription",
+      "name": "Subscription",
+      "position": { "x": 330, "y": 80 },
+      "fields": [
+        { "id": "f_sub_id", "name": "id", "type": "string", "nullable": false, "primary": true, "unique": true },
+        { "id": "f_sub_plan", "name": "plan", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_sub_status", "name": "status", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_sub_period_end", "name": "current_period_end", "type": "datetime", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_sub_cancel", "name": "cancel_at_period_end", "type": "boolean", "nullable": false, "primary": false, "unique": false }
+      ]
+    },
+    {
+      "id": "ent_user",
+      "name": "User",
+      "position": { "x": 580, "y": 80 },
+      "fields": [
+        { "id": "f_user_id", "name": "id", "type": "string", "nullable": false, "primary": true, "unique": true },
+        { "id": "f_user_clerk", "name": "clerk_user_id", "type": "string", "nullable": false, "primary": false, "unique": true },
+        { "id": "f_user_email", "name": "email", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_user_name", "name": "name", "type": "string", "nullable": true, "primary": false, "unique": false },
+        { "id": "f_user_role", "name": "role", "type": "string", "nullable": false, "primary": false, "unique": false }
+      ]
+    },
+    {
+      "id": "ent_project",
+      "name": "Project",
+      "position": { "x": 80, "y": 320 },
+      "fields": [
+        { "id": "f_proj_id", "name": "id", "type": "string", "nullable": false, "primary": true, "unique": true },
+        { "id": "f_proj_slug", "name": "slug", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_proj_name", "name": "name", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_proj_desc", "name": "description", "type": "string", "nullable": true, "primary": false, "unique": false },
+        { "id": "f_proj_pub", "name": "is_public", "type": "boolean", "nullable": false, "primary": false, "unique": false }
+      ]
+    },
+    {
+      "id": "ent_task",
+      "name": "Task",
+      "position": { "x": 330, "y": 320 },
+      "fields": [
+        { "id": "f_task_id", "name": "id", "type": "string", "nullable": false, "primary": true, "unique": true },
+        { "id": "f_task_title", "name": "title", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_task_desc", "name": "description", "type": "string", "nullable": true, "primary": false, "unique": false },
+        { "id": "f_task_status", "name": "status", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_task_priority", "name": "priority", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_task_due", "name": "due_date", "type": "datetime", "nullable": true, "primary": false, "unique": false }
+      ]
+    },
+    {
+      "id": "ent_customer",
+      "name": "Customer",
+      "position": { "x": 580, "y": 320 },
+      "fields": [
+        { "id": "f_cust_id", "name": "id", "type": "string", "nullable": false, "primary": true, "unique": true },
+        { "id": "f_cust_email", "name": "email", "type": "string", "nullable": false, "primary": false, "unique": true },
+        { "id": "f_cust_name", "name": "name", "type": "string", "nullable": true, "primary": false, "unique": false }
+      ]
+    },
+    {
+      "id": "ent_post",
+      "name": "FeedbackPost",
+      "position": { "x": 80, "y": 560 },
+      "fields": [
+        { "id": "f_post_id", "name": "id", "type": "string", "nullable": false, "primary": true, "unique": true },
+        { "id": "f_post_title", "name": "title", "type": "string", "nullable": false, "primary": false, "unique": false },
+        { "id": "f_post_body", "name": "body", "type": "string", "nullable": true, "primary": false, "unique": false },
+        { "id": "f_post_status", "name": "status", "type": "string", "nullable": false, "primary": false, "unique": false }
+      ]
+    },
+    {
+      "id": "ent_vote",
+      "name": "Vote",
+      "position": { "x": 330, "y": 560 },
+      "fields": [
+        { "id": "f_vote_id", "name": "id", "type": "string", "nullable": false, "primary": true, "unique": true }
+      ]
+    },
+    {
+      "id": "ent_comment",
+      "name": "Comment",
+      "position": { "x": 580, "y": 560 },
+      "fields": [
+        { "id": "f_cmt_id", "name": "id", "type": "string", "nullable": false, "primary": true, "unique": true },
+        { "id": "f_cmt_body", "name": "body", "type": "text", "nullable": false, "primary": false, "unique": false }
+      ]
+    }
+  ],
+  "schemaEdges": [
+    { "id": "rel_org_sub", "source": "ent_organization", "target": "ent_subscription", "kind": "one_to_one" },
+    { "id": "rel_org_user", "source": "ent_organization", "target": "ent_user", "kind": "one_to_many" },
+    { "id": "rel_org_proj", "source": "ent_organization", "target": "ent_project", "kind": "one_to_many" },
+    { "id": "rel_proj_task", "source": "ent_project", "target": "ent_task", "kind": "one_to_many" },
+    { "id": "rel_proj_post", "source": "ent_project", "target": "ent_post", "kind": "one_to_many" },
+    { "id": "rel_task_user", "source": "ent_task", "target": "ent_user", "kind": "many_to_many" },
+    { "id": "rel_cust_post", "source": "ent_customer", "target": "ent_post", "kind": "one_to_many" },
+    { "id": "rel_post_vote", "source": "ent_post", "target": "ent_vote", "kind": "one_to_many" },
+    { "id": "rel_post_cmt", "source": "ent_post", "target": "ent_comment", "kind": "one_to_many" },
+    { "id": "rel_cust_vote", "source": "ent_customer", "target": "ent_vote", "kind": "one_to_many" }
+  ],
+  "notes": "_Tessera — project management + customer feedback SaaS._\n\nMulti-tenant via Clerk organizations. Free vs Pro plan via Stripe.\nPublic feedback boards + embeddable widget for customer-facing pages.\n\nThis Architect doc is committed so Codira users see the diagram\nimmediately on open. The auto-detector (Phase 1+3) would produce\nthe same shape from package.json + prisma/schema.prisma if this\nfile were missing.",
+  "updatedAt": 0
+}

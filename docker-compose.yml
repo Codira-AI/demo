@@ -1,0 +1,30 @@
+# Postgres only — Tessera doesn't need anything else infra-side.
+#
+# `npm run db:up` brings this up in the background; `npm run db:down`
+# stops it. Data persists across restarts via the named volume.
+#
+# If you'd rather not use Docker, edit DATABASE_URL in .env.local to
+# point at any Postgres 16+ instance (Neon free tier is 90 seconds
+# to set up and works fine — see SETUP.md).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: codira-demo-postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tessera
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres-data:
