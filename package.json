@@ -19,12 +19,15 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.5.0",
     "@prisma/client": "^5.22.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.460.0",
     "next": "^15.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "resend": "^4.0.1",
+    "stripe": "^17.4.0",
     "tailwind-merge": "^2.5.4",
     "zod": "^3.23.8"
   },
