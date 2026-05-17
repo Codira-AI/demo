@@ -13,6 +13,13 @@ const config: Config = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontSize: {
+        // One step smaller than Tailwind's default `xs` — used for
+        // status pills, sidebar meta, footer captions. Matches the
+        // Codira IDE chrome convention so cross-product visual
+        // vocabulary stays consistent.
+        '2xs': ['0.6875rem', { lineHeight: '0.875rem' }],
+      },
       colors: {
         bg: {
           0: 'rgb(var(--bg-0) / <alpha-value>)',
