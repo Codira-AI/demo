@@ -17,6 +17,7 @@ import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { BoardContent } from '@/components/BoardContent';
 import { EmbedHeightSync } from './EmbedHeightSync';
+import { getCustomerEmail } from '@/lib/customer-cookie';
 
 export default async function EmbedPage({
   params,
@@ -37,6 +38,13 @@ export default async function EmbedPage({
     },
   });
   if (!board) notFound();
+
+  // Cookie reads inside an iframe respect the iframe's own
+  // document.cookie scope. Cross-origin embeds will mostly NOT have
+  // a cookie (third-party cookie restrictions); voting from inside
+  // an embed effectively requires the user to have visited the
+  // host page first. That's acceptable for v1.
+  const customerEmail = await getCustomerEmail();
 
   const posts = await db.feedbackPost.findMany({
     where: { project_id: board.id },
@@ -61,7 +69,13 @@ export default async function EmbedPage({
       </div>
 
       {/* Submit disabled inside embeds for v1 — see file header. */}
-      <BoardContent posts={posts} showSubmit={false} />
+      <BoardContent
+        posts={posts}
+        orgSlug={orgSlug}
+        boardSlug={boardSlug}
+        customerEmail={customerEmail}
+        showSubmit={false}
+      />
 
       <div className="mt-3 text-center text-2xs text-ink-2">
         Powered by{' '}

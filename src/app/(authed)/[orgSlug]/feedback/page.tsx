@@ -16,6 +16,7 @@ import { feedbackForOrg } from '@/lib/tenant';
 import { StatusPill } from '@/components/StatusPills';
 import { formatRelativeTime } from '@/lib/format';
 import { FeedbackStatusChips } from './FeedbackStatusChips';
+import { PostStatusSelect } from './PostStatusSelect';
 import type { PostStatus } from '@prisma/client';
 
 const ALL_STATUSES: PostStatus[] = ['open', 'planned', 'in_progress', 'completed', 'declined'];
@@ -107,6 +108,18 @@ export default async function FeedbackPage({
                   </div>
                 </div>
               </Link>
+              {/* Status select sits OUTSIDE the link so the form
+                  interaction doesn't also navigate to the post page. */}
+              <div className="border-t border-edge bg-bg-0 px-4 py-2">
+                <div className="flex items-center justify-end gap-2 text-xs text-ink-2">
+                  <span>Change status:</span>
+                  <PostStatusSelect
+                    postId={post.id}
+                    orgSlug={orgSlug}
+                    current={post.status}
+                  />
+                </div>
+              </div>
             </li>
           ))}
         </ul>

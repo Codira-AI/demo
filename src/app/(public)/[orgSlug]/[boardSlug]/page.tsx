@@ -15,6 +15,8 @@
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { BoardContent } from '@/components/BoardContent';
+import { getCustomerEmail } from '@/lib/customer-cookie';
+import { IdentifyForm } from './IdentifyForm';
 
 /** Slugs that authed routes use — a project with one of these
  *  slugs should never reach this page in practice (Next.js routing
@@ -38,6 +40,12 @@ export default async function PublicBoardPage({
   const { orgSlug, boardSlug } = await params;
 
   if (RESERVED_BOARD_SLUGS.has(boardSlug)) notFound();
+
+  // Identity is cookie-based — null when the visitor hasn't told
+  // us who they are yet. Page renders an IdentifyForm in that case;
+  // submitting it sets the cookie and re-renders with interactive
+  // vote / submit controls.
+  const customerEmail = await getCustomerEmail();
 
   // Single query gets org + project. Org slug → org id → project lookup
   // happens in one round-trip via the relation. Returns null when the
@@ -87,7 +95,22 @@ export default async function PublicBoardPage({
         </div>
       </header>
 
-      <BoardContent posts={posts} />
+      {customerEmail === null ? (
+        <div className="mb-4">
+          <IdentifyForm redirectTo={`/${orgSlug}/${boardSlug}`} />
+        </div>
+      ) : (
+        <div className="mb-4 text-xs text-ink-2">
+          Voting as <span className="text-ink-1">{customerEmail}</span>
+        </div>
+      )}
+
+      <BoardContent
+        posts={posts}
+        orgSlug={orgSlug}
+        boardSlug={boardSlug}
+        customerEmail={customerEmail}
+      />
     </div>
   );
 }
