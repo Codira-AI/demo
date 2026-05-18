@@ -17,13 +17,6 @@
 import type { SendEmailInput } from './email';
 
 export async function mockSendEmail(input: SendEmailInput): Promise<{ id: string }> {
-  // CODIRA_DEMO: intentional unused import flagged by tsc.
-  // The static analyzer in Codira's Phase 2 onboarding scan will
-  // flag this for the first-steps card. Don't remove without
-  // replacing the demo hook elsewhere.
-  // (Intentionally no broken import here — using the QA agent
-  // hook in billing.ts as the analyzer trigger is enough.)
-
   const recipients = Array.isArray(input.to) ? input.to.join(', ') : input.to;
   console.log(
     `[email-mock] to=${recipients} subject=${JSON.stringify(input.subject)}`,

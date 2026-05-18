@@ -10,8 +10,10 @@
 import Link from 'next/link';
 import { requireOrgAccess } from '@/lib/auth';
 import { dashboardCountsForOrg, feedbackForOrg } from '@/lib/tenant';
+import { db } from '@/lib/db';
 import { StatusPill } from '@/components/StatusPills';
 import { formatRelativeTime } from '@/lib/format';
+import { MetricBar } from './MetricBar';
 
 export default async function DashboardPage({
   params,
@@ -21,9 +23,33 @@ export default async function DashboardPage({
   const { orgSlug } = await params;
   const { organization, user } = await requireOrgAccess(orgSlug);
 
-  const [counts, recent] = await Promise.all([
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const [counts, recent, openFeedback, tasksInProgress, completedThisWeek] = await Promise.all([
     dashboardCountsForOrg(organization),
     feedbackForOrg(organization).then((all) => all.slice(0, 5)),
+    db.feedbackPost.count({
+      where: {
+        project: { organization_id: organization.id },
+        status: 'open',
+      },
+    }),
+    db.task.count({
+      where: {
+        project: { organization_id: organization.id },
+        status: 'in_progress',
+      },
+    }),
+    db.task.count({
+      where: {
+        project: { organization_id: organization.id },
+        status: 'done',
+        // Tasks lack an updated_at field today; for the demo we
+        // approximate "this week" by created_at. A real product
+        // would track status_changed_at separately. (Flag this in
+        // /plan to see Codira propose the schema change.)
+        created_at: { gte: sevenDaysAgo },
+      },
+    }),
   ]);
 
   return (
@@ -37,10 +63,18 @@ export default async function DashboardPage({
         </p>
       </header>
 
-      <section className="mb-8 grid grid-cols-3 gap-3">
+      <section className="mb-6 grid grid-cols-3 gap-3">
         <CounterTile label="Projects" value={counts.projects} href={`/${orgSlug}/projects`} />
         <CounterTile label="Open tasks" value={counts.openTasks} href={`/${orgSlug}/tasks`} />
         <CounterTile label="Open feedback" value={counts.openPosts} href={`/${orgSlug}/feedback`} />
+      </section>
+
+      <section className="mb-8">
+        <MetricBar
+          openFeedback={openFeedback}
+          tasksInProgress={tasksInProgress}
+          completedThisWeek={completedThisWeek}
+        />
       </section>
 
       <section>

@@ -18,6 +18,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // CODIRA_DEMO: this is a demo project — src/lib/demo-errors.ts
+  // contains an intentional type error so Codira's Phase 2 static
+  // analyzer has something to flag in the first-steps card. We
+  // allow the build to succeed regardless so `npm run dev` /
+  // `npm run build` still work end-to-end. In a real project,
+  // leave this off (the default) so type errors block deploys.
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   async headers() {
     return [
       {
