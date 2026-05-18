@@ -1,0 +1,86 @@
+# CI for the Codira demo repo.
+#
+# We treat "demo always works" as a hard SLA — every PR + every
+# push to main runs through install + db setup + build + lint.
+# A broken demo is worse than no demo (it actively erodes trust
+# in Codira), so we fail loudly when anything regresses.
+#
+# Why no test suite: Tessera is a demo, not a product. Adding
+# tests would suggest "this is production-grade" which it isn't.
+# Codira-IDE-flagged hooks (like demo-errors.ts) would also fail
+# real tests anyway. The build + lint pair is the right CI surface
+# for what this repo is.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Manual trigger for quarterly maintenance runs.
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      # Postgres matches docker-compose.yml so the build's Prisma
+      # migrate step has a real DB to talk to.
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tessera
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=3s
+          --health-timeout=3s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tessera
+      DEMO_MODE: 'true'
+      NEXT_PUBLIC_APP_URL: 'http://localhost:3000'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run migrations + seed
+        run: |
+          npx prisma migrate deploy
+          npm run db:seed
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify CODIRA_DEMO hooks are present
+        # Sanity check: at least 5 CODIRA_DEMO markers in source.
+        # If a refactor accidentally strips one, CI catches it.
+        run: |
+          count=$(grep -r 'CODIRA_DEMO' src/ prisma/ | wc -l | tr -d ' ')
+          echo "Found $count CODIRA_DEMO markers"
+          if [ "$count" -lt 5 ]; then
+            echo "::error::Expected at least 5 CODIRA_DEMO markers in src/ + prisma/; found $count"
+            exit 1
+          fi
