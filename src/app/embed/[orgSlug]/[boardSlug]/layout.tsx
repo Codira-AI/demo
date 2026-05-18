@@ -27,17 +27,8 @@ export const metadata: Metadata = {
   // page's social previews.
   robots: 'noindex, nofollow',
 };
-
-// CSP headers via the Next.js `headers()` function would normally
-// live in middleware, but we exempt /embed/* from the Clerk middleware
-// already (see middleware.ts matcher) so we need a route-segment
-// config instead. Next 15's `headers()` route segment config does it.
-//
-// Note: this is a route segment export — Next.js picks it up
-// automatically for any route under this segment.
-export async function generateMetadata(): Promise<Metadata> {
-  return metadata;
-}
+// (CSP / X-Frame-Options for the embed route are set in
+// next.config.mjs's headers() function, not here.)
 
 export default function EmbedLayout({
   children,
