@@ -29,9 +29,10 @@ export default async function middleware(req: NextRequest) {
 
   // Real path. We import Clerk at request time (only ever entered
   // when DEMO_MODE=false) so demo-mode deployments don't need a
-  // valid Clerk publishable key to boot.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { clerkMiddleware } = require('@clerk/nextjs/server');
+  // valid Clerk publishable key to boot. Dynamic `import()` is
+  // preferred over `require()` here so the bundler treats it as
+  // a code-split point (and ESLint's default rules stay happy).
+  const { clerkMiddleware } = await import('@clerk/nextjs/server');
   return clerkMiddleware()(req);
 }
 
