@@ -36,7 +36,7 @@ export default function PublicBoardLayout({
       <footer className="border-t border-edge bg-bg-1 px-6 py-3 text-center text-2xs text-ink-2">
         Tessera demo · MIT licensed source on{' '}
         <a
-          href="https://github.com/codira/demo"
+          href="https://github.com/Codira-AI/demo"
           className="text-accent hover:underline"
           target="_blank"
           rel="noopener noreferrer"

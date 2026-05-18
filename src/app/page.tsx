@@ -93,12 +93,12 @@ export default async function Home() {
         </a>
         . Source:{' '}
         <a
-          href="https://github.com/codira/demo"
+          href="https://github.com/Codira-AI/demo"
           className="text-accent hover:underline"
           target="_blank"
           rel="noopener noreferrer"
         >
-          github.com/codira/demo
+          github.com/Codira-AI/demo
         </a>
       </footer>
     </main>

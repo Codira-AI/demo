@@ -25,7 +25,7 @@ Demo mode runs Tessera end-to-end with no third-party accounts. Clerk, Stripe, a
 ### Standard install
 
 ```bash
-git clone https://github.com/codira/demo codira-demo
+git clone https://github.com/Codira-AI/demo codira-demo
 cd codira-demo
 
 # Database
@@ -331,6 +331,6 @@ The `tessera_customer_email` cookie is `httpOnly + sameSite=lax`. Browsers respe
 
 ## Getting help
 
-- **Bug in Tessera?** [Open an issue](https://github.com/codira/demo/issues)
+- **Bug in Tessera?** [Open an issue](https://github.com/Codira-AI/demo/issues)
 - **Bug in Codira?** [Open an issue at codira/codira](https://github.com/BryanFerre/codira/issues)
 - **Question about the tour?** [hello@codira.dev](mailto:hello@codira.dev)

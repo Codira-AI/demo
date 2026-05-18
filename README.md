@@ -9,7 +9,7 @@ A project management + customer feedback SaaS, built end-to-end with [Codira](ht
 ## 30-second setup
 
 ```bash
-git clone https://github.com/codira/demo codira-demo
+git clone https://github.com/Codira-AI/demo codira-demo
 cd codira-demo
 docker compose up -d           # Postgres on :5432
 npm install
